@@ -1,0 +1,36 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    "opener:default",
+    {
+      "identifier": "fs:scope",
+      "allow": [{
+        "path": "$CONFIG/chorder/*"
+      }, {
+          "path": "$HOME/dotfiles.private/*"
+        }]
+    },
+    {
+      "identifier": "fs:allow-open",
+      "allow": [{
+        "path": "$CONFIG/chorder/*"
+      }, {
+          "path": "$HOME/dotfiles.private/*"
+        }]
+    },
+    {
+      "identifier": "fs:allow-read-text-file",
+      "allow": [{
+        "path": "$CONFIG/chorder/*"
+      }, {
+          "path": "$HOME/dotfiles.private/*"
+        }]
+    }
+  ]
+}

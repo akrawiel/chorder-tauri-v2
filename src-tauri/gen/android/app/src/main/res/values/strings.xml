@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">chorder-tauri</string>
+    <string name="main_activity_title">chorder-tauri</string>
+</resources>
