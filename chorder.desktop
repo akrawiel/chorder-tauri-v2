@@ -1,0 +1,10 @@
+[Desktop Entry]
+Categories=
+Comment=Chorder app
+Exec=chorder %u
+Icon=chorder
+MimeType=x-scheme-handler/chorder
+Name=chorder
+NoDisplay=true
+Terminal=false
+Type=Application

@@ -1,44 +1,62 @@
 {
-  "$schema": "https://schema.tauri.app/config/2",
-  "productName": "chorder",
-  "version": "0.1.0",
-  "identifier": "dev.kodespresso.chorder",
-  "build": {
-    "beforeDevCommand": "bun run dev",
-    "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "bun run build",
-    "frontendDist": "../dist"
-  },
-  "app": {
-    "windows": [
-      {
-        "title": "Chorder",
-        "width": 800,
-        "height": 800,
-        "decorations": false,
-        "alwaysOnTop": true,
-        "center": true,
-        "dragDropEnabled": false,
-        "focus": true,
-        "maximizable": false,
-        "resizable": false,
-        "windowClassname": "chorder",
-        "visibleOnAllWorkspaces": true
-      }
-    ],
-    "security": {
-      "csp": null
-    }
-  },
-  "bundle": {
-    "active": true,
-    "targets": "all",
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
-    ]
-  }
+	"$schema": "https://schema.tauri.app/config/2",
+	"productName": "chorder",
+	"version": "0.1.0",
+	"identifier": "dev.kodespresso.chorder",
+	"build": {
+		"beforeDevCommand": "bun run dev",
+		"devUrl": "http://localhost:1420",
+		"beforeBuildCommand": "bun run build",
+		"frontendDist": "../dist"
+	},
+	"plugins": {
+		"deep-link": {
+			"desktop": {
+				"schemes": ["chorder"]
+			}
+		}
+	},
+	"app": {
+		"windows": [
+			{
+				"title": "Chorder",
+				"minWidth": 0,
+				"minHeight": 0,
+				"width": 600,
+				"height": 300,
+				"decorations": false,
+				"alwaysOnTop": false,
+				"center": true,
+				"visible": false,
+				"dragDropEnabled": false,
+				"focus": false,
+				"maximizable": false,
+				"resizable": true,
+				"windowClassname": "chorder",
+				"visibleOnAllWorkspaces": false
+			}
+		],
+		"security": {
+			"csp": null
+		}
+	},
+	"bundle": {
+		"active": true,
+		"targets": "all",
+		"icon": [
+			"icons/32x32.png",
+			"icons/128x128.png",
+			"icons/128x128@2x.png",
+			"icons/icon.icns",
+			"icons/icon.ico"
+		],
+		"linux": {
+			"rpm": {
+				"desktopTemplate": "../chorder.desktop"
+			},
+			"deb": {
+				"desktopTemplate": "../chorder.desktop"
+			}
+		}
+	}
 }

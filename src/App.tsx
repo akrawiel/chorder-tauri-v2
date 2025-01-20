@@ -1,16 +1,28 @@
-import { getCurrentWindow } from "@tauri-apps/api/window";
-import { BaseDirectory, readTextFile } from "@tauri-apps/plugin-fs";
+import { defaultWindowIcon } from "@tauri-apps/api/app";
+import type { UnlistenFn } from "@tauri-apps/api/event";
+import { Menu } from "@tauri-apps/api/menu";
+import { homeDir } from "@tauri-apps/api/path";
+import { TrayIcon } from "@tauri-apps/api/tray";
 import {
-	Accessor,
+	UserAttentionType,
+	getAllWindows,
+	getCurrentWindow,
+} from "@tauri-apps/api/window";
+import { onOpenUrl } from "@tauri-apps/plugin-deep-link";
+import { BaseDirectory, readTextFile, stat } from "@tauri-apps/plugin-fs";
+import { exit } from "@tauri-apps/plugin-process";
+import { Command } from "@tauri-apps/plugin-shell";
+import {
+	type Accessor,
 	For,
-	JSX,
+	type JSX,
 	Match,
 	Switch,
 	createSignal,
 	onCleanup,
 	onMount,
 } from "solid-js";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 
 type Option = {
 	description: string;
@@ -35,15 +47,19 @@ type Config = {
 	margin?: number;
 	spacing?: number;
 	shell?: string;
+	window?: {
+		width?: number;
+		height?: number;
+	};
 	font?: {
 		description?: {
 			family?: string;
-			style?: string;
+			weight?: string | number;
 			size?: number;
 		};
 		shortcut?: {
 			family?: string;
-			style?: string;
+			weight?: string | number;
 			size?: number;
 		};
 	};
@@ -52,6 +68,12 @@ type Config = {
 };
 
 function App() {
+	const [trayIcon, setTrayIcon] = createSignal<TrayIcon | null>(null);
+	const [closeRequestUnlistenFn, setCloseRequestUnlistenFn] =
+		createSignal<UnlistenFn | null>(null);
+	const [openUrlUnlistenFn, setOpenUrlUnlistenFn] =
+		createSignal<UnlistenFn | null>(null);
+
 	const [errorMessage, setErrorMessage] = createSignal<string | null>(null);
 	const [config, setConfig] = createSignal<Config | null>(null);
 	const [isLoading, setIsLoading] = createSignal<boolean>(false);
@@ -100,11 +122,43 @@ function App() {
 						({ shortcut }) => shortcut === key,
 					);
 
-          match(foundAction)
-            .with({switch: P.nonNullable}, ({switch: newState}) => {
-              setState(newState)
-            })
-            .run()
+					match(foundAction)
+						.with({ run: P.nonNullable }, ({ run, args }) => {
+							const finalShell = config()?.shell;
+
+							if (!finalShell) {
+								return;
+							}
+
+							homeDir().then((home) => {
+								Command.create(`script${finalShell}`, [
+									"-c",
+									`${run.replace("$HOME", home)} ${(args ?? []).join(" ")}`.trim(),
+								]).execute();
+							});
+							getCurrentWindow().hide();
+							setState(config()?.start_state ?? "main");
+						})
+						.with({ script: P.nonNullable }, ({ script, shell }) => {
+							const finalShell = shell ?? config()?.shell;
+
+							if (!finalShell) {
+								return;
+							}
+
+							homeDir().then((home) => {
+								Command.create(`run${finalShell}`, [
+									script.replace("$HOME", home),
+								]).execute();
+							});
+
+							getCurrentWindow().hide();
+							setState(config()?.start_state ?? "main");
+						})
+						.with({ switch: P.nonNullable }, ({ switch: newState }) => {
+							setState(newState);
+						})
+						.run();
 				})
 				.run();
 		} catch {
@@ -112,14 +166,76 @@ function App() {
 		}
 	}
 
+	async function createTray() {
+		try {
+			return await TrayIcon.new({
+				icon: (await defaultWindowIcon()) ?? undefined,
+				menu: await Menu.new({
+					items: [
+						{
+							id: "toggle",
+							text: "Toggle Chorder",
+							action: async () => {
+								for (const window of await getAllWindows()) {
+									window.show();
+									window.requestUserAttention(UserAttentionType.Informational);
+								}
+							},
+						},
+						{
+							id: "quit",
+							text: "Quit",
+							action: () => {
+								exit(0);
+							},
+						},
+					],
+				}),
+				menuOnLeftClick: true,
+			});
+		} catch (e) {
+			console.warn(e);
+			return null;
+		}
+	}
+
 	onMount(() => {
 		readConfig();
 
 		document.addEventListener("keydown", keypressListener);
+
+		createTray().then((newTrayIcon) => {
+			setTrayIcon(newTrayIcon);
+		});
+
+		getCurrentWindow()
+			.onCloseRequested((event) => {
+				event.preventDefault();
+				getCurrentWindow().hide();
+				setState(config()?.start_state ?? "main");
+			})
+			.then((newUnlistenFn) => {
+				setCloseRequestUnlistenFn(() => newUnlistenFn);
+			});
+
+		onOpenUrl(() => {
+			getAllWindows().then((allWindows) => {
+				for (const window of allWindows) {
+					window.show();
+					window.requestUserAttention(UserAttentionType.Informational);
+				}
+			});
+		}).then((newUnlistenFn) => {
+			setOpenUrlUnlistenFn(() => newUnlistenFn);
+		});
 	});
 
 	onCleanup(() => {
 		document.removeEventListener("keydown", keypressListener);
+
+		trayIcon()?.close();
+		closeRequestUnlistenFn()?.();
+		openUrlUnlistenFn()?.();
 	});
 
 	const gridStyle: Accessor<JSX.CSSProperties> = () => ({
@@ -131,14 +247,14 @@ function App() {
 
 	const cellShortcutStyle: Accessor<JSX.CSSProperties> = () => ({
 		"font-family": config()?.font?.shortcut?.family ?? "monospace",
-		"font-style": config()?.font?.shortcut?.style ?? "bold",
+		"font-weight": config()?.font?.shortcut?.weight ?? 700,
 		"font-size": `${config()?.font?.shortcut?.size ?? 24}px`,
 	});
 
 	const cellDescriptionStyle: Accessor<JSX.CSSProperties> = () => ({
 		"font-family": config()?.font?.description?.family ?? "monospace",
-		"font-style": config()?.font?.description?.style ?? "bold",
-		"font-size": `${config()?.font?.description?.size ?? 24}px`,
+		"font-weight": config()?.font?.description?.weight ?? 400,
+		"font-size": `${config()?.font?.description?.size ?? 12}px`,
 	});
 
 	return (

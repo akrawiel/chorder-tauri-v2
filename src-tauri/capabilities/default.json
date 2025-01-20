@@ -1,36 +1,110 @@
 {
-  "$schema": "../gen/schemas/desktop-schema.json",
-  "identifier": "default",
-  "description": "Capability for the main window",
-  "windows": [
-    "main"
-  ],
-  "permissions": [
-    "core:default",
-    "opener:default",
-    {
-      "identifier": "fs:scope",
-      "allow": [{
-        "path": "$CONFIG/chorder/*"
-      }, {
-          "path": "$HOME/dotfiles.private/*"
-        }]
-    },
-    {
-      "identifier": "fs:allow-open",
-      "allow": [{
-        "path": "$CONFIG/chorder/*"
-      }, {
-          "path": "$HOME/dotfiles.private/*"
-        }]
-    },
-    {
-      "identifier": "fs:allow-read-text-file",
-      "allow": [{
-        "path": "$CONFIG/chorder/*"
-      }, {
-          "path": "$HOME/dotfiles.private/*"
-        }]
-    }
-  ]
+	"$schema": "../gen/schemas/desktop-schema.json",
+	"identifier": "default",
+	"description": "Capability for the main window",
+	"windows": ["main"],
+	"permissions": [
+		"core:default",
+		"opener:default",
+		{
+			"identifier": "fs:scope",
+			"allow": [
+				{
+					"path": "$CONFIG/chorder/*"
+				}
+			]
+		},
+		{
+			"identifier": "fs:allow-open",
+			"allow": [
+				{
+					"path": "$CONFIG/chorder/*"
+				}
+			]
+		},
+		{
+			"identifier": "fs:allow-read-text-file",
+			"allow": [
+				{
+					"path": "$CONFIG/chorder/*"
+				}
+			]
+		},
+		{
+			"identifier": "shell:allow-execute",
+			"allow": [
+				{
+					"name": "runbash",
+					"cmd": "bash",
+					"args": [
+						{
+							"validator": "\\S+"
+						}
+					],
+					"sidecar": false
+				},
+				{
+					"name": "runfish",
+					"cmd": "fish",
+					"args": [
+						{
+							"validator": "\\S+"
+						}
+					],
+					"sidecar": false
+				},
+				{
+					"name": "runzsh",
+					"cmd": "zsh",
+					"args": [
+						{
+							"validator": "\\S+"
+						}
+					],
+					"sidecar": false
+				},
+				{
+					"name": "scriptbash",
+					"cmd": "bash",
+					"args": [
+            "-c",
+						{
+							"validator": "\\S+"
+						}
+					],
+					"sidecar": false
+				},
+				{
+					"name": "scriptfish",
+					"cmd": "fish",
+					"args": [
+            "-c",
+						{
+							"validator": "\\S+"
+						}
+					],
+					"sidecar": false
+				},
+				{
+					"name": "scriptzsh",
+					"cmd": "zsh",
+					"args": [
+            "-c",
+						{
+							"validator": "\\S+"
+						}
+					],
+					"sidecar": false
+				}
+			]
+		},
+		"core:app:allow-default-window-icon",
+		"core:window:allow-set-size",
+		"core:window:allow-request-user-attention",
+		"core:window:allow-hide",
+		"core:window:allow-show",
+		"process:default",
+		"shell:default",
+		"deep-link:default"
+	]
 }

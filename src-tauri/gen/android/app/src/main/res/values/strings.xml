@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">chorder-tauri</string>
-    <string name="main_activity_title">chorder-tauri</string>
+    <string name="app_name">chorder</string>
+    <string name="main_activity_title">chorder</string>
 </resources>
