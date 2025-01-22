@@ -101,6 +101,8 @@ function App() {
 	}
 
 	function keypressListener(event: KeyboardEvent) {
+		event.preventDefault();
+
 		try {
 			const input = event.key.toLowerCase();
 

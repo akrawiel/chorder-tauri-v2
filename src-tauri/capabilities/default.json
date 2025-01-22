@@ -38,7 +38,7 @@
 					"cmd": "bash",
 					"args": [
 						{
-							"validator": "\\S+"
+							"validator": ".+"
 						}
 					],
 					"sidecar": false
@@ -48,7 +48,7 @@
 					"cmd": "fish",
 					"args": [
 						{
-							"validator": "\\S+"
+							"validator": ".+"
 						}
 					],
 					"sidecar": false
@@ -58,7 +58,7 @@
 					"cmd": "zsh",
 					"args": [
 						{
-							"validator": "\\S+"
+							"validator": ".+"
 						}
 					],
 					"sidecar": false
@@ -69,7 +69,7 @@
 					"args": [
             "-c",
 						{
-							"validator": "\\S+"
+							"validator": ".+"
 						}
 					],
 					"sidecar": false
@@ -80,7 +80,7 @@
 					"args": [
             "-c",
 						{
-							"validator": "\\S+"
+							"validator": ".+"
 						}
 					],
 					"sidecar": false
@@ -91,7 +91,7 @@
 					"args": [
             "-c",
 						{
-							"validator": "\\S+"
+							"validator": ".+"
 						}
 					],
 					"sidecar": false
