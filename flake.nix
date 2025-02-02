@@ -18,7 +18,10 @@
 
             src = ./.;
 
-            deps = [ libayatana-appindicator ];
+            postPatch = lib.optionalString stdenv.hostPlatform.isLinux ''
+              substituteInPlace $cargoDepsCopy/libappindicator-sys-*/src/lib.rs \
+                --replace "libayatana-appindicator3.so.1" "${libayatana-appindicator}/lib/libayatana-appindicator3.so.1"
+            '';
 
             npmDeps = importNpmLock { npmRoot = ./.; };
             npmConfigHook = importNpmLock.npmConfigHook;
