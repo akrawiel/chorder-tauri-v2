@@ -18,24 +18,19 @@
 
             src = ./.;
 
-            postPatch = lib.optionalString stdenv.hostPlatform.isLinux ''
-              substituteInPlace $cargoDepsCopy/libappindicator-sys-*/src/lib.rs \
-                --replace "libayatana-appindicator3.so.1" "${libayatana-appindicator}/lib/libayatana-appindicator3.so.1"
-            '';
-
             npmDeps = importNpmLock { npmRoot = ./.; };
             npmConfigHook = importNpmLock.npmConfigHook;
 
             buildInputs = [ openssl ]
               ++ lib.optionals stdenv.hostPlatform.isLinux [
                 webkitgtk_4_1
-                libayatana-appindicator
               ];
             nativeBuildInputs = [
               cargo-tauri.hook
               nodejs_22
               importNpmLock.npmConfigHook
               pkg-config
+              libayatana-appindicator
               wrapGAppsHook4
             ];
             cargoHash = "sha256-R2PbIefgqMIf57FeQisG5qNrorf/xdMH98twO3zMZbA=";
