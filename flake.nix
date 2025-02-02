@@ -38,6 +38,7 @@
               homepage = "";
               description = "Chorder";
               license = licenses.mit;
+              mainProgram = "chorder";
             };
           };
       });
