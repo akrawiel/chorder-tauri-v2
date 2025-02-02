@@ -9,28 +9,31 @@
 
   outputs = { nixpkgs, flake-utils, ... }:
     flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system};
+      let pkgs = nixpkgs.legacyPackages.${system};
       in {
         packages.default = with pkgs;
           rustPlatform.buildRustPackage rec {
             pname = "chorder";
             version = "0.1.3";
 
-            src =  ./.;
+            src = ./.;
 
             npmDeps = importNpmLock { npmRoot = ./.; };
+            npmConfigHook = importNpmLock.npmConfigHook;
 
             buildInputs = [ openssl ]
-              ++ lib.optionals stdenv.hostPlatform.isLinux [ webkitgtk_4_1 ];
+              ++ lib.optionals stdenv.hostPlatform.isLinux [
+                webkitgtk_4_1
+                libayatana-appindicator
+              ];
             nativeBuildInputs = [
               cargo-tauri.hook
               nodejs_22
-              npmHooks.npmConfigHook
+              importNpmLock.npmConfigHook
               pkg-config
               wrapGAppsHook4
             ];
-            cargoSha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+            cargoHash = "sha256-R2PbIefgqMIf57FeQisG5qNrorf/xdMH98twO3zMZbA=";
             cargoRoot = "src-tauri";
             buildAndTestSubdir = cargoRoot;
 
