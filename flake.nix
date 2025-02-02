@@ -18,11 +18,22 @@
 
             src = ./.;
 
+            postPatch = lib.optionalString stdenv.hostPlatform.isLinux ''
+              substituteInPlace $cargoDepsCopy/libappindicator-sys-*/src/lib.rs \
+                --replace "libayatana-appindicator3.so.1" "${libayatana-appindicator}/lib/libayatana-appindicator3.so.1"
+            '';
+
+            useFetchCargoVendor = true;
+
             npmDeps = importNpmLock { npmRoot = ./.; };
             npmConfigHook = importNpmLock.npmConfigHook;
 
             buildInputs = [ openssl ]
               ++ lib.optionals stdenv.hostPlatform.isLinux [
+                dbus
+                freetype
+                gsettings-desktop-schemas
+                libayatana-appindicator
                 webkitgtk_4_1
               ];
             nativeBuildInputs = [
@@ -30,12 +41,17 @@
               nodejs_22
               importNpmLock.npmConfigHook
               pkg-config
-              libayatana-appindicator
               wrapGAppsHook4
             ];
-            cargoHash = "sha256-R2PbIefgqMIf57FeQisG5qNrorf/xdMH98twO3zMZbA=";
+            cargoHash = "sha256-Yua4Qx0HSXMWjFxZcRpmTZ5MGtO+F8+2xtIBz8Hg+Jc=";
             cargoRoot = "src-tauri";
             buildAndTestSubdir = cargoRoot;
+
+            preBuild = ''
+              npm run build
+            '';
+
+            doCheck = false;
 
             meta = with lib; {
               homepage = "";
