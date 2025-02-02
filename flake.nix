@@ -18,6 +18,8 @@
 
             src = ./.;
 
+            deps = [ libayatana-appindicator ];
+
             npmDeps = importNpmLock { npmRoot = ./.; };
             npmConfigHook = importNpmLock.npmConfigHook;
 
