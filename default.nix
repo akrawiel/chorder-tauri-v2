@@ -38,7 +38,7 @@ rustPlatform.buildRustPackage rec {
   cargoRoot = "src-tauri";
   buildAndTestSubdir = cargoRoot;
 
-  meta = with stdenv.lib; {
+  meta = with lib; {
     homepage = "";
     description = "Chorder";
     license = licenses.mit;
